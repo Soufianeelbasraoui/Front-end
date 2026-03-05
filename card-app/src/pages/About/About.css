@@ -1,0 +1,104 @@
+
+:root {
+  --primary: var(--accent-orange);
+  --primary-dark: var(--accent-orange-hover);
+  --secondary: var(--warning-color);
+  --dark: var(--primary-color);
+  --light: var(--bg-light);
+  --gray: var(--text-muted);
+}
+
+.about-us-section {
+  background-color: var(--bg-light);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 100px;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.text1 {
+  color: var(--accent-orange);
+}
+
+.btn-primary1 {
+  background-color: var(--accent-orange);
+  color: var(--text-white);
+  border: none;
+  transition: var(--transition-fast);
+}
+.btn-primary1:hover {
+  background-color: var(--accent-orange-hover);
+}
+
+.about-img-wrapper {
+  position: relative;
+}
+
+.experience-badge {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  background: var(--bg-white);
+  padding: 1.5rem;
+  border-radius: 50%;
+  border: 1px var(--warning-color) solid;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  animation: pulse 2s infinite;
+  text-align: center;
+}
+
+.experience-badge span {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--accent-orange);
+}
+.text-primary1{
+  color: var(--primary-dark);
+}
+.experience-badge small {
+  font-size: 0.8rem;
+  color: var(--gray);
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.feature-item i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.stats-row {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+  padding: 1.5rem;
+  transition: var(--transition-fast);
+  border-radius: 10px;
+  background-color: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

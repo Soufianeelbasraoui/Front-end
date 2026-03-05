@@ -1,11 +1,10 @@
 
-import pmob4 from "../image/pmob4.webp"
-import pelck2 from "../image/pelck2.webp";
-import pvet3 from "../image/pvet3.webp";
+import pmob4 from "../assets/images/pmob4.webp"
+import pelck2 from "../assets/images/pelck2.webp";
 //sac & bagages
-import psacb1 from "../image/psacb1.webp";
-import psacb3 from "../image/imgslider3.webp";
-import psacb2 from "../image/psacb2.webp";
+import psacb1 from "../assets/images/psacb1.webp";
+
+import psacb2 from "../assets/images/psacb2.webp";
 const formatPrice = (price) => {
    if (typeof price === 'number') return `${price} DH`;
    if (typeof price === 'string' && !price.endsWith('DH')) return `${price} DH`;

@@ -1,0 +1,76 @@
+/* ProductCard.css (Hero & Services Section) */
+.main-container {
+   
+    margin: 50px auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    height: 400px; 
+   
+}
+.image{
+    width: 100%;
+    margin: 30px;
+}
+
+
+.h5 {
+    margin: 20px 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+p {
+    font-size: 1rem;
+   color: var(--primary-color);
+}
+
+.button-main {
+    background-color: var(--accent-orange);
+    color: var(--text-white);
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-main:hover {
+    background-color: var(--accent-orange-hover);
+}
+
+.section-service {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 100px;
+    flex-wrap: wrap; 
+}
+
+.section2 {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border: 1px solid var(--accent-orange);
+    border-radius: 5px;
+    width: 300px;
+    padding: 15px;
+    background-color: var(--bg-white);
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.section2:hover {
+    background-color: var(--bg-gray);
+    border-color: var(--border-medium);
+    transform: scale(1.05);
+}
+
+.icons {
+    width: 1.8rem;
+    height: 1.8rem;
+    margin: 10px;
+    margin-top: 20px;
+    color: var(--warning-color);
+}

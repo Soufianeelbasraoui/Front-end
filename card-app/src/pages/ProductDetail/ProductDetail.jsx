@@ -106,9 +106,7 @@ function ProductDetail({ handelAddtoCart }) {
                 <FaShoppingCart className="me-2" /> AJOUTER AU PANIER
               </button> 
 
-              <Link to="/produits" className="btn btn-outline-secondary w-100 py-2">
-                RETOUR À LA BOUTIQUE
-              </Link>
+            
             </div>
 
             <div className="shipping-info mt-4 p-3 bg-light rounded shadow-sm">

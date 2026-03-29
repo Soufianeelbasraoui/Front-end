@@ -1,16 +1,20 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaEnvelope, FaLock, FaSignInAlt } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaEnvelope, FaLock, FaSignInAlt, FaGoogle } from "react-icons/fa";
 import { Form, Button, Alert } from "react-bootstrap";
+import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 
 function Login() {
+  const { login, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,7 +41,7 @@ function Login() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -46,11 +50,18 @@ function Login() {
     }
 
     try {
-      console.log("Login attempt:", formData);
-      alert("Connexion réussie ! (Simulation)");
-      setFormData({ email: "", password: "" });
+      setLoading(true);
+      const data = await login(formData.email, formData.password);
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
-      setLoginError("Échec de la connexion. Vérifiez vos identifiants.");
+      const message = error.response?.data?.message || error.response?.data?.errors?.email?.[0] || "Échec de la connexion. Vérifiez vos identifiants.";
+      setLoginError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,9 +126,24 @@ function Login() {
             variant="primary"
             className="connecter-btn"
             aria-label="Se connecter"
+            disabled={loading}
           >
             <FaSignInAlt className="me-2" />
-            Se connecter
+            {loading ? "Connexion..." : "Se connecter"}
+          </Button>
+
+          <div className="divider">
+            <span>ou</span>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline-dark"
+            className="google-btn"
+            onClick={loginWithGoogle}
+          >
+            <FaGoogle className="me-2" style={{ color: '#ea4335' }} />
+            Se connecter avec Google
           </Button>
         </Form>
 

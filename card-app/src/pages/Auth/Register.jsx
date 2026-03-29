@@ -1,10 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock, FaUserPlus } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaUser, FaEnvelope, FaLock, FaUserPlus, FaGoogle } from "react-icons/fa";
 import { Form, Button, Alert } from "react-bootstrap";
+import { useAuth } from "../../context/AuthContext";
 import "./Register.css";
+import "../Auth/Login.css";
 
 function Register() {
+  const { register, loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -49,7 +54,7 @@ function Register() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -58,16 +63,14 @@ function Register() {
     }
 
     try {
-      console.log("Sign-up attempt:", formData);
-      alert("Inscription réussie ! (Simulation)");
-      setFormData({
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
+      setLoading(true);
+      await register(formData.fullName, formData.email, formData.password);
+      navigate('/dashboard');
     } catch (error) {
-      setSignupError("Échec de l'inscription. Veuillez réessayer.");
+      const message = error.response?.data?.message || error.response?.data?.errors?.email?.[0] || "Échec de l'inscription. Veuillez réessayer.";
+      setSignupError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -166,9 +169,24 @@ function Register() {
             variant="primary"
             className="sinscrire-btn"
             aria-label="S'inscrire"
+            disabled={loading}
           >
             <FaUserPlus className="me-2" />
-            S'inscrire
+            {loading ? "Inscription..." : "S'inscrire"}
+          </Button>
+
+          <div className="divider">
+            <span>ou</span>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline-dark"
+            className="google-btn"
+            onClick={loginWithGoogle}
+          >
+            <FaGoogle className="me-2" style={{ color: '#ea4335' }} />
+            S'inscrire avec Google
           </Button>
         </Form>
 

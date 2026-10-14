@@ -80,6 +80,23 @@ function Cart({ painer = [], handeleRemove }) {
   return (
     <div className="cart-page-wrapper">
       <div className="cart-container">
+        <div className="checkout-steps-bar">
+          <div className="step-item active">
+            <span className="step-circle">1</span>
+            <span className="step-label">Panier</span>
+          </div>
+          <div className="step-connector"></div>
+          <div className="step-item">
+            <span className="step-circle">2</span>
+            <span className="step-label">Livraison</span>
+          </div>
+          <div className="step-connector"></div>
+          <div className="step-item">
+            <span className="step-circle">3</span>
+            <span className="step-label">Paiement</span>
+          </div>
+        </div>
+
         <div className="cart-header-title">
           <div className="header-text-group">
             <h1>Mon Panier</h1>
@@ -117,13 +134,15 @@ function Cart({ painer = [], handeleRemove }) {
 
                   return (
                     <div key={index} className="cart-item-row">
-                      <div className="item-thumb-wrapper">
+                      <Link to={item.id ? `/product/${item.id}` : '#'} className="item-thumb-wrapper">
                         <img src={item.img} alt={item.title} />
-                      </div>
+                      </Link>
 
                       <div className="item-main-info">
                         <span className="item-category-tag">{item.category || "Produit"}</span>
-                        <h4 className="item-name">{item.title}</h4>
+                        <Link to={item.id ? `/product/${item.id}` : '#'} className="item-title-link">
+                          <h4 className="item-name">{item.title}</h4>
+                        </Link>
                         {item.selectedSize && (
                           <span className="item-pill">Taille : {item.selectedSize}</span>
                         )}
@@ -186,8 +205,8 @@ function Cart({ painer = [], handeleRemove }) {
                   </div>
 
                   <div className="breakdown-row">
-                    <span>Livraison estimée</span>
-                    <span className="val shipping-free">Gratuite</span>
+                    <span>Frais de livraison</span>
+                    <span className="val shipping-free">Inclus</span>
                   </div>
 
                   {discount > 0 && (

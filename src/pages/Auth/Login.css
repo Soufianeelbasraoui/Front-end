@@ -1,0 +1,239 @@
+.connecter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  background: #fdfdfd;
+  padding: 2rem 1rem;
+}
+
+.connecter-card {
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #eeeeee;
+  padding: 2rem;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.connecter-title {
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+  font-size: 1.5rem;
+}
+
+.connecter-alert {
+  border-radius: 5px;
+  font-size: 0.88rem;
+  padding: 0.65rem;
+  margin-bottom: 1.2rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888888;
+  font-size: 1rem;
+  z-index: 10;
+}
+
+.connecter-card .form-control {
+  padding-left: 38px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+  font-size: 0.95rem;
+  height: 44px;
+  transition: all 0.2s ease;
+}
+
+.connecter-card .form-control:focus {
+  border-color: #e46036;
+  box-shadow: 0 0 0 2px rgba(228, 96, 54, 0.15);
+}
+
+.connecter-card .form-control.is-invalid {
+  border-color: #E60012;
+}
+
+.connecter-card .invalid-feedback {
+  font-size: 0.8rem;
+  text-align: left;
+  margin-top: 0.25rem;
+}
+
+.connecter-links {
+  text-align: right;
+  margin-bottom: 1.2rem;
+}
+
+.forgot-password {
+  color: #e46036;
+  font-size: 0.85rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.connecter-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  border-radius: 5px;
+  background-color: #e46036 !important;
+  border: 1px solid #e46036 !important;
+  color: #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.connecter-btn:hover {
+  background-color: #c4542a !important;
+  border-color: #c4542a !important;
+}
+
+.connecter-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.connecter-footer {
+  margin-top: 1.2rem;
+  font-size: 0.88rem;
+  color: #636e72;
+}
+
+.signup-link {
+  color: #e46036;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.2rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #eeeeee;
+}
+
+.divider span {
+  padding: 0 0.6rem;
+  color: #888888;
+  font-size: 0.8rem;
+}
+
+.google-btn {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cccccc;
+  background: #ffffff;
+  color: #333333;
+  transition: all 0.2s ease;
+}
+
+.google-btn:hover {
+  background: #f8f8f8;
+  border-color: #bbbbbb;
+}
+
+.demo-credentials-box {
+  background: #fafafa;
+  border: 1px solid #eeeeee;
+  border-radius: 5px;
+  padding: 0.8rem;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.demo-hint {
+  font-size: 0.8rem;
+  color: #636e72;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.demo-btn-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.demo-badge-btn {
+  flex: 1;
+  border: 1px solid #eeeeee;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.demo-badge-btn.admin {
+  background: #2c3e50;
+  color: #ffffff;
+  border-color: #2c3e50;
+}
+
+.demo-badge-btn.admin:hover {
+  background: #1a252f;
+}
+
+.demo-badge-btn.user {
+  background: #e46036;
+  color: #ffffff;
+  border-color: #e46036;
+}
+
+.demo-badge-btn.user:hover {
+  background: #c4542a;
+}
+
+.demo-badge-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 576px) {
+  .connecter-card {
+    padding: 1.4rem;
+  }
+
+  .connecter-title {
+    font-size: 1.3rem;
+  }
+}

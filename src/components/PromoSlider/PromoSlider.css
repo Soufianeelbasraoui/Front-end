@@ -1,0 +1,121 @@
+.promo-slider {
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+.carousel-inner {
+  border-radius: 5px;
+}
+
+.promo-content {
+  padding: 1.5rem 0.5rem;
+}
+
+.promo-heading {
+  font-size: 1.55rem;
+  line-height: 1.3;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+  color: var(--text-title);
+  font-weight: 800;
+}
+
+.promo-price {
+  font-size: 0.95rem;
+}
+
+.img-card {
+  border-radius: 5px;
+  transition: var(--transition-fast);
+}
+
+.img-card:hover {
+  transform: scale(1.03);
+}
+
+.btn-warning {
+  background-color: var(--accent-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.btn-warning:hover {
+  background-color: var(--accent-orange-hover);
+  color: #ffffff;
+}
+
+.carousel-control-prev, 
+.carousel-control-next {
+  width: 44px;
+}
+
+.carousel-control-prev-icon, 
+.carousel-control-next-icon {
+  background-color: rgba(15, 23, 42, 0.45);
+  background-size: 1.2rem;
+  border-radius: 5px;
+  transition: var(--transition-fast);
+}
+
+.carousel-control-prev-icon:hover, 
+.carousel-control-next-icon:hover {
+  background-color: var(--accent-orange);
+}
+
+.carousel-indicators button {
+  width: 20px;
+  height: 4px;
+  border-radius: 5px;
+  margin: 0 4px;
+  border: none;
+  background-color: var(--text-muted);
+  opacity: 0.4;
+  transition: var(--transition-fast);
+}
+
+.carousel-indicators button.active {
+  background-color: var(--accent-orange);
+  opacity: 1;
+  width: 32px;
+}
+
+.promo-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.promo-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-orange);
+  box-shadow: var(--shadow-md);
+}
+
+.promo-side-info {
+  min-width: 0;
+}
+
+.promo-side-title {
+  font-size: 14.5px;
+  color: var(--text-title);
+  line-height: 1.3;
+}
+
+@media (max-width: 768px) {
+  .promo-heading {
+    font-size: 1.25rem;
+  }
+
+  .promo-content {
+    text-align: center;
+  }
+}

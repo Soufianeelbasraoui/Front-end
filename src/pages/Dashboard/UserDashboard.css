@@ -1,0 +1,212 @@
+.user-dashboard-wrapper {
+  background: #fdfdfd;
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem 1rem 4rem;
+}
+
+.user-dashboard {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.user-dash-header {
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #eeeeee;
+  padding: 1.8rem;
+  margin-bottom: 1.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+}
+
+.user-dash-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.user-dash-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 5px;
+  background: #f5f5f5;
+  border: 1px solid #eeeeee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-dash-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-icon {
+  font-size: 1.8rem;
+  color: #888888;
+}
+
+.user-dash-info h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.user-email {
+  margin: 0 0 0.5rem;
+  color: #636e72;
+  font-size: 0.9rem;
+}
+
+.user-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.role-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.user-badge {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.admin-badge {
+  background: #fbf0ec;
+  color: #e46036;
+  border: 1px solid #f3d1c5;
+}
+
+.date-badge {
+  font-size: 0.75rem;
+  color: #888888;
+  background: #f8f8f8;
+  border: 1px solid #eeeeee;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.admin-portal-btn {
+  display: inline-flex;
+  align-items: center;
+  background: #2c3e50;
+  color: #ffffff;
+  padding: 0.65rem 1.2rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.admin-portal-btn:hover {
+  background: #1a252f;
+  color: #ffffff;
+}
+
+.user-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.dash-card {
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #eeeeee;
+  padding: 1.6rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.dash-card:hover {
+  border-color: #cccccc;
+  transform: translateY(-2px);
+}
+
+.dash-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.icon-orders {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.icon-wishlist {
+  background: #fef2f2;
+  color: #e11d48;
+}
+
+.icon-admin {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.icon-logout {
+  background: #f5f5f5;
+  color: #636e72;
+}
+
+.dash-card-content h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 0.4rem;
+}
+
+.dash-card-content p {
+  font-size: 0.85rem;
+  color: #636e72;
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+.dash-card-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e46036;
+  margin-top: auto;
+}
+
+.dash-card-logout:hover {
+  border-color: #E60012;
+}
+
+.dash-card-logout:hover .dash-card-link {
+  color: #E60012 !important;
+}
+
+@media (max-width: 600px) {
+  .user-dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

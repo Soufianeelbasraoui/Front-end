@@ -164,3 +164,37 @@
 .footer-bottom-links a:hover {
   color: var(--accent-orange);
 }
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 2.2rem 0 1.5rem;
+  }
+
+  .footer-border {
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer {
+    padding: 1.8rem 0 1.2rem;
+  }
+
+  .footer h5 {
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .footer-border {
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+}

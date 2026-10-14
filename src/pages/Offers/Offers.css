@@ -178,3 +178,32 @@
     gap: 8px;
   }
 }
+
+@media (max-width: 576px) {
+  .offers-hero-banner {
+    height: 160px;
+  }
+
+  .banner-title {
+    font-size: 1.2rem;
+  }
+
+  .banner-desc {
+    font-size: 0.82rem;
+  }
+
+  .offers-banner-content {
+    padding: 1rem;
+  }
+
+  .offer-filter-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 350px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}

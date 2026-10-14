@@ -1049,3 +1049,57 @@
   background: #e2e8f0;
   border-radius: 5px;
 }
+
+@media (max-width: 992px) {
+  .admin-sidebar {
+    width: 65px;
+  }
+
+  .sidebar-logo span,
+  .admin-info,
+  .nav-label,
+  .sidebar-shop-link span:last-child,
+  .sidebar-logout-btn span:last-child {
+    display: none;
+  }
+
+  .admin-header {
+    padding: 0 1.2rem;
+  }
+
+  .search-box {
+    width: 200px;
+  }
+
+  .admin-content-area {
+    padding: 1.2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-header {
+    padding: 0 0.8rem;
+  }
+
+  .search-box {
+    display: none;
+  }
+
+  .admin-content-area {
+    padding: 0.8rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .trigger-role {
+    display: none;
+  }
+}

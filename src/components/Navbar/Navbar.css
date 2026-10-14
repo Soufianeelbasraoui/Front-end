@@ -651,3 +651,80 @@
 .mobile-nav a:hover {
   color: var(--accent-orange);
 }
+
+@media (max-width: 768px) {
+  .top-promo-bar {
+    font-size: 11.5px;
+    padding: 5px 0;
+  }
+
+  .promo-text {
+    font-size: 11.5px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .top-bar {
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-promo-bar {
+    font-size: 10.5px;
+    padding: 4px 0;
+  }
+
+  .promo-text {
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .top-bar {
+    gap: 6px;
+    padding-bottom: 6px;
+  }
+
+  .clickstore-brand.md .brand-icon-box {
+    width: 32px;
+    height: 32px;
+  }
+
+  .clickstore-brand.md .brand-icon-box svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .clickstore-brand.md .brand-name {
+    font-size: 18px;
+  }
+
+  .clickstore-brand.md .brand-tagline {
+    display: none;
+  }
+
+  .nav-actions {
+    gap: 4px;
+  }
+
+  .wishlist-badge-btn,
+  .cart-badge-btn,
+  .mobile-toggle-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .wishlist-icon,
+  .cart-icon {
+    font-size: 21px;
+  }
+
+  .mobile-toggle-btn {
+    font-size: 20px;
+  }
+
+  .mobile-drawer {
+    padding: 12px 0 16px;
+  }
+}

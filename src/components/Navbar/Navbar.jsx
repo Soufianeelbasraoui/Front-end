@@ -8,8 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import Logo from "../Brand/Logo";
 import "./Navbar.css";
 
-import products from "../../data/products";
-import Featuredproducts from "../../data/featuredProducts";
+import { productAPI } from "../../services/api";
 import formatPrice from "../../utils/formatPrice";
 
 function Nav({ products: cartCount = 0 }) {
@@ -17,10 +16,21 @@ function Nav({ products: cartCount = 0 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [catalogProducts, setCatalogProducts] = useState([]);
   const [userDropdown, setUserDropdown] = useState(false);
   const searchContainerRef = useRef(null);
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    productAPI.getAll()
+      .then((res) => {
+        setCatalogProducts(res.data || []);
+      })
+      .catch((err) => {
+        console.error("Erreur de récupération catalogue pour la recherche:", err);
+      });
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -45,20 +55,12 @@ function Nav({ products: cartCount = 0 }) {
     }
 
     const q = query.toLowerCase();
-    const safeProducts = Array.isArray(products) ? products : [];
-    const safeFeatured = Array.isArray(Featuredproducts) ? Featuredproducts : [];
-
-    const allProducts = [
-      ...safeProducts,
-      ...safeFeatured.filter((fp) => !safeProducts.some((p) => p?.id === fp?.id)),
-    ];
-
-    const filtered = allProducts.filter(
+    const filtered = (catalogProducts || []).filter(
       (p) =>
         p &&
         (p.title?.toLowerCase().includes(q) ||
           p.category?.toLowerCase().includes(q) ||
-          p.brand?.toLowerCase().includes(q))
+          p.description?.toLowerCase().includes(q))
     );
 
     setSearchResults(filtered.slice(0, 6));
@@ -331,7 +333,53 @@ function Nav({ products: cartCount = 0 }) {
               <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
             </nav>
 
-            {!isAuthenticated && (
+            {isAuthenticated ? (
+              <div className="mobile-auth-user mt-3 pt-3 border-top">
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="user-avatar" />
+                  ) : (
+                    <div className="user-avatar-placeholder">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
+                  <div className="d-flex flex-column text-start min-w-0">
+                    <strong className="text-dark fs-6 text-truncate">{user?.name}</strong>
+                    <small className="text-muted text-truncate">{user?.email}</small>
+                  </div>
+                </div>
+                <div className="d-flex flex-column gap-2">
+                  {isAdmin ? (
+                    <Link
+                      to="/admin"
+                      className="btn btn-warning w-100 text-center fw-bold d-flex align-items-center justify-content-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <MdOutlineDashboard className="me-2" /> Tableau Admin
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/dashboard"
+                      className="btn btn-outline-primary w-100 text-center fw-bold d-flex align-items-center justify-content-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <MdOutlineDashboard className="me-2" /> Mon Espace Client
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger w-100 text-center fw-bold d-flex align-items-center justify-content-center"
+                    onClick={() => {
+                      logout();
+                      setMenuOpen(false);
+                      navigate('/');
+                    }}
+                  >
+                    <CiLogout className="me-2" /> Déconnexion
+                  </button>
+                </div>
+              </div>
+            ) : (
               <div className="mobile-auth-actions mt-3 pt-3 border-top d-flex gap-2">
                 <Link
                   to="/Connecter"

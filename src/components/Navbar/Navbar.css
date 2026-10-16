@@ -606,6 +606,9 @@
 .mobile-drawer {
   padding: 16px 0 20px;
   border-top: 1px solid var(--border-light);
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-results {
@@ -644,7 +647,7 @@
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -670,6 +673,18 @@
   }
 }
 
+@media (max-width: 576px) {
+  .user-role-badge {
+    display: none;
+  }
+
+  .user-dropdown-card {
+    right: -10px;
+    min-width: 190px;
+    max-width: 88vw;
+  }
+}
+
 @media (max-width: 480px) {
   .top-promo-bar {
     font-size: 10.5px;
@@ -687,17 +702,17 @@
   }
 
   .clickstore-brand.md .brand-icon-box {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
 
   .clickstore-brand.md .brand-icon-box svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   .clickstore-brand.md .brand-name {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .clickstore-brand.md .brand-tagline {
@@ -711,20 +726,38 @@
   .wishlist-badge-btn,
   .cart-badge-btn,
   .mobile-toggle-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
   }
 
   .wishlist-icon,
   .cart-icon {
-    font-size: 21px;
-  }
-
-  .mobile-toggle-btn {
     font-size: 20px;
   }
 
+  .mobile-toggle-btn {
+    font-size: 19px;
+  }
+
   .mobile-drawer {
-    padding: 12px 0 16px;
+    padding: 10px 0 16px;
+  }
+}
+
+@media (max-width: 350px) {
+  .clickstore-brand.md .brand-name {
+    font-size: 15px;
+  }
+
+  .wishlist-badge-btn,
+  .cart-badge-btn,
+  .mobile-toggle-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .wishlist-icon,
+  .cart-icon {
+    font-size: 18px;
   }
 }

@@ -877,3 +877,32 @@
     padding: 0.85rem;
   }
 }
+
+@media (max-width: 380px) {
+  .step-label {
+    display: none;
+  }
+
+  .step-connector {
+    min-width: 14px;
+    margin: 0 4px;
+  }
+
+  .promo-input-group {
+    flex-direction: column;
+  }
+
+  .apply-promo-btn {
+    padding: 0.6rem;
+    width: 100%;
+  }
+
+  .cart-item-row {
+    padding: 0.65rem;
+  }
+
+  .item-thumb-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+}

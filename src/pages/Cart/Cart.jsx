@@ -13,6 +13,8 @@ import {
   FaTag
 } from "react-icons/fa";
 import { Modal, Button } from "react-bootstrap";
+import { toast } from "react-toastify";
+import { orderAPI } from "../../services/api";
 import formatPrice from "../../utils/formatPrice";
 import "./Cart.css";
 import cartImg from "../../assets/images/cart.png";
@@ -72,9 +74,27 @@ function Cart({ painer = [], handeleRemove }) {
     }
   };
 
-  const handlePaymentSubmit = () => {
-    alert(`Commande confirmée ! Méthode : ${paymentMethod} — Total : ${totalFinal.toFixed(2)} DH`);
-    setShowPaymentModal(false);
+  const handlePaymentSubmit = async () => {
+    try {
+      const orderData = {
+        total: totalFinal,
+        payment_method: paymentMethod || "card",
+        items: painer.map((item, index) => ({
+          title: item.title,
+          price: getNumericPrice(item.newPrice || item.new_price || item.price),
+          quantity: quantities[index] || 1,
+          selected_size: item.selectedSize || null,
+          img: item.img || null,
+          product_id: item.id || null,
+        })),
+      };
+      const res = await orderAPI.create(orderData);
+      toast.success(`Commande n°${res.data.id} confirmée avec succès !`);
+      setShowPaymentModal(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de l'enregistrement de la commande.");
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI, productAPI } from '../../services/api';
@@ -6,7 +6,8 @@ import {
   FaUsers, FaBoxOpen, FaShoppingCart, FaMoneyBillWave, FaTrash, 
   FaUserShield, FaUser, FaPlus, FaSearch, 
   FaArrowLeft, FaArrowRight, FaSyncAlt, FaEdit, FaHome, FaSignOutAlt,
-  FaCheck, FaCog, FaTimes, FaChevronDown
+  FaCheck, FaCog, FaTimes, FaChevronDown, FaBars, FaEye, FaTruck,
+  FaMapMarkerAlt, FaEnvelope, FaPhoneAlt
 } from 'react-icons/fa';
 import { 
   MdOutlinePending, MdLocalShipping, MdDone, MdCancel, 
@@ -46,19 +47,32 @@ function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
+  
+  // Recherche avec debounce
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Filtres
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [productCategoryFilter, setProductCategoryFilter] = useState('all');
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const dropdownRef = useRef(null);
 
+  // Modals
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
   const [productForm, setProductForm] = useState({
     title: '',
     category: 'Vêtements homme',
     new_price: '',
     prevPrice: '',
+    promo: '',
     img: '',
     description: '',
     inStock: true,
@@ -73,13 +87,22 @@ function AdminDashboard() {
     }
   });
 
-  const loadData = useCallback(async () => {
+  // Debounce de la recherche (350ms)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Chargement initial complet
+  const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       const [statsRes, usersRes, ordersRes, productsRes] = await Promise.all([
         adminAPI.getStats(),
-        adminAPI.getUsers({ search }),
-        adminAPI.getOrders({ search }),
+        adminAPI.getUsers({ search: debouncedSearch }),
+        adminAPI.getOrders({ search: debouncedSearch }),
         productAPI.getAll(),
       ]);
       setStats(statsRes.data);
@@ -91,12 +114,13 @@ function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadInitialData();
+  }, [loadInitialData]);
 
+  // Fermer le dropdown au clic extérieur
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -112,7 +136,9 @@ function AdminDashboard() {
       await adminAPI.updateUserRole(userId, newRole);
       setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
       toast.success('Rôle mis à jour');
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Erreur lors du changement de rôle');
+    }
   };
 
   const handleDeleteUser = async (userId) => {
@@ -121,15 +147,22 @@ function AdminDashboard() {
       await adminAPI.deleteUser(userId);
       setUsers(users.filter(u => u.id !== userId));
       toast.success('Utilisateur supprimé');
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Erreur lors de la suppression');
+    }
   };
 
   const handleOrderStatus = async (orderId, status) => {
     try {
       await adminAPI.updateOrderStatus(orderId, status);
       setOrders(orders.map(o => o.id === orderId ? { ...o, status } : o));
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder(prev => ({ ...prev, status }));
+      }
       toast.success('Statut de commande mis à jour');
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Erreur lors de la mise à jour du statut');
+    }
   };
 
   const handleDeleteProduct = async (id) => {
@@ -138,7 +171,9 @@ function AdminDashboard() {
       await productAPI.delete(id);
       setProducts(products.filter(p => p.id !== id));
       toast.success('Produit supprimé');
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Erreur lors de la suppression');
+    }
   };
 
   const handleOpenAddProduct = () => {
@@ -148,6 +183,7 @@ function AdminDashboard() {
       category: 'Vêtements homme',
       new_price: '',
       prevPrice: '',
+      promo: '',
       img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&auto=format&fit=crop&q=80',
       description: '',
       inStock: true,
@@ -161,10 +197,11 @@ function AdminDashboard() {
       title: prod.title || '',
       category: prod.category || 'Vêtements homme',
       new_price: prod.new_price ?? prod.newPrice ?? '',
-      prevPrice: prod.prevPrice || '',
+      prevPrice: prod.prev_price || prod.prevPrice || '',
+      promo: prod.promo || '',
       img: prod.img || '',
       description: prod.description || '',
-      inStock: prod.inStock ?? true,
+      inStock: prod.inStock ?? prod.in_stock ?? true,
     });
     setShowProductModal(true);
   };
@@ -182,6 +219,8 @@ function AdminDashboard() {
         ...productForm,
         new_price: priceNum,
         newPrice: `${priceNum} MAD`,
+        prev_price: productForm.prevPrice,
+        in_stock: productForm.inStock,
       };
 
       if (editingProduct) {
@@ -229,6 +268,41 @@ function AdminDashboard() {
     cancelled: <MdCancel />,
   };
 
+  // Filtrage local optimisé pour les commandes
+  const filteredOrders = useMemo(() => {
+    let result = orders;
+    if (orderStatusFilter !== 'all') {
+      result = result.filter(o => o.status === orderStatusFilter);
+    }
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(o => 
+        String(o.id).includes(q) || 
+        o.user?.name?.toLowerCase().includes(q) ||
+        o.shipping_name?.toLowerCase().includes(q) ||
+        o.shipping_email?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [orders, orderStatusFilter, debouncedSearch]);
+
+  // Filtrage local optimisé pour les produits
+  const filteredProducts = useMemo(() => {
+    let result = products;
+    if (productCategoryFilter !== 'all') {
+      result = result.filter(p => p.category === productCategoryFilter);
+    }
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(p => 
+        p.title?.toLowerCase().includes(q) || 
+        p.category?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [products, productCategoryFilter, debouncedSearch]);
+
   if (loading && !stats) {
     return (
       <div className="admin-loading-skeleton">
@@ -247,22 +321,35 @@ function AdminDashboard() {
     );
   }
 
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    setMobileSidebarOpen(false);
+  };
+
   return (
     <div className={`admin-dashboard ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
       <ToastContainer position="top-right" autoClose={3000} />
       
-      <div className="admin-sidebar">
+      {mobileSidebarOpen && (
+        <div 
+          className="admin-sidebar-backdrop d-md-none" 
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`admin-sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-logo">
           <FaUserShield className="logo-icon" />
           <span>ADMIN PANEL</span>
         </div>
 
         <nav className="admin-nav">
-          <NavBtn icon={<MdDashboard />} label="Vue d'ensemble" active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
-          <NavBtn icon={<MdPeople />} label="Utilisateurs" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
-          <NavBtn icon={<MdInventory />} label="Produits" active={activeTab === 'products'} onClick={() => setActiveTab('products')} />
-          <NavBtn icon={<MdShoppingBag />} label="Commandes" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
-          <NavBtn icon={<MdSettings />} label="Gestion Globale" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+          <NavBtn icon={<MdDashboard />} label="Vue d'ensemble" active={activeTab === 'overview'} onClick={() => handleNavClick('overview')} />
+          <NavBtn icon={<MdPeople />} label="Utilisateurs" active={activeTab === 'users'} onClick={() => handleNavClick('users')} />
+          <NavBtn icon={<MdInventory />} label="Produits" active={activeTab === 'products'} onClick={() => handleNavClick('products')} />
+          <NavBtn icon={<MdShoppingBag />} label="Commandes" active={activeTab === 'orders'} onClick={() => handleNavClick('orders')} />
+          <NavBtn icon={<MdSettings />} label="Gestion Globale" active={activeTab === 'settings'} onClick={() => handleNavClick('settings')} />
         </nav>
         
         <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
@@ -270,23 +357,33 @@ function AdminDashboard() {
         </button>
       </div>
 
+      {/* Zone Principale */}
       <div className="admin-main">
         <header className="admin-header">
+          <button 
+            type="button" 
+            className="admin-mobile-toggle d-md-none" 
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            aria-label="Ouvrir le menu"
+          >
+            <FaBars />
+          </button>
+
           <div className="search-box">
             <FaSearch className="search-icon" />
             <input 
               type="text" 
-              placeholder="Rechercher partout..." 
+              placeholder="Rechercher par mot-clé..." 
               value={search} 
               onChange={(e) => setSearch(e.target.value)} 
             />
           </div>
 
           <div className="header-actions">
-            <button className="refresh-btn" onClick={loadData} title="Rafraîchir les données">
+            <button className="refresh-btn" onClick={loadInitialData} title="Rafraîchir les données">
               <FaSyncAlt className={loading ? 'spin' : ''} />
             </button>
-            <div className="notification-bell">
+            <div className="notification-bell" onClick={() => setActiveTab('orders')} title="Voir les commandes">
               <div className="badge">{orders.length}</div>
               <FaShoppingCart />
             </div>
@@ -317,7 +414,12 @@ function AdminDashboard() {
                   
                   <Link to="/" className="dropdown-item-link" onClick={() => setUserDropdownOpen(false)}>
                     <FaHome className="dropdown-icon" />
-                    <span>Retour à l'accueil (Home)</span>
+                    <span>Retour à la Boutique (Home)</span>
+                  </Link>
+
+                  <Link to="/dashboard" className="dropdown-item-link" onClick={() => setUserDropdownOpen(false)}>
+                    <FaUser className="dropdown-icon" />
+                    <span>Mon Espace Personnel</span>
                   </Link>
                   
                   <button 
@@ -346,14 +448,16 @@ function AdminDashboard() {
         </header>
 
         <div className="admin-content-area">
+          {/* 1. VUE D'ENSEMBLE */}
           {activeTab === 'overview' && (
             <OverviewSection stats={stats} />
           )}
 
+          {/* 2. UTILISATEURS */}
           {activeTab === 'users' && (
             <ListSection 
               title="Gestion des Utilisateurs" 
-              subtitle={`${users.length} comptes enregistrés`}
+              subtitle={`${users.length} comptes enregistrés dans le système`}
               data={users} 
               renderTable={() => (
                 <UsersTable users={users} onRoleChange={handleRoleChange} onDelete={handleDeleteUser} />
@@ -361,19 +465,35 @@ function AdminDashboard() {
             />
           )}
 
+          {/* 3. PRODUITS */}
           {activeTab === 'products' && (
             <ListSection 
               title="Inventaire Produits" 
-              subtitle={`${products.length} articles disponibles`}
+              subtitle={`${filteredProducts.length} articles trouvés`}
               action={
-                <button className="btn-primary" onClick={handleOpenAddProduct}>
-                  <FaPlus /> Nouveau Produit
-                </button>
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  <select 
+                    className="category-filter-select"
+                    value={productCategoryFilter}
+                    onChange={(e) => setProductCategoryFilter(e.target.value)}
+                  >
+                    <option value="all">Toutes les catégories</option>
+                    <option value="Chaussures homme">Chaussures homme</option>
+                    <option value="Vêtements homme">Vêtements homme</option>
+                    <option value="Vêtements femme">Vêtements femme</option>
+                    <option value="Électroniques">Électroniques</option>
+                    <option value="Meubles">Meubles</option>
+                    <option value="Sacs et bagages">Sacs et bagages</option>
+                  </select>
+                  <button className="btn-primary" onClick={handleOpenAddProduct}>
+                    <FaPlus className="me-1" /> Nouveau Produit
+                  </button>
+                </div>
               }
-              data={products} 
+              data={filteredProducts} 
               renderTable={() => (
                 <ProductsTable 
-                  products={products} 
+                  products={filteredProducts} 
                   onEdit={handleOpenEditProduct} 
                   onDelete={handleDeleteProduct} 
                 />
@@ -381,17 +501,37 @@ function AdminDashboard() {
             />
           )}
 
+          {/* 4. COMMANDES */}
           {activeTab === 'orders' && (
             <ListSection 
               title="Gestion des Commandes" 
-              subtitle={`${orders.length} commandes enregistrées`}
-              data={orders} 
+              subtitle={`${filteredOrders.length} commandes répertoriées`}
+              action={
+                <div className="order-filter-chips">
+                  {['all', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((statusKey) => (
+                    <button
+                      key={statusKey}
+                      className={`filter-chip ${orderStatusFilter === statusKey ? 'active' : ''}`}
+                      onClick={() => setOrderStatusFilter(statusKey)}
+                    >
+                      {statusKey === 'all' ? 'Toutes' : statusKey}
+                    </button>
+                  ))}
+                </div>
+              }
+              data={filteredOrders} 
               renderTable={() => (
-                <OrdersTable orders={orders} onStatusChange={handleOrderStatus} statusIcons={statusIcons} />
+                <OrdersTable 
+                  orders={filteredOrders} 
+                  onStatusChange={handleOrderStatus} 
+                  onViewDetails={(order) => setSelectedOrder(order)}
+                  statusIcons={statusIcons} 
+                />
               )} 
             />
           )}
 
+          {/* 5. GESTION GLOBALE */}
           {activeTab === 'settings' && (
             <GlobalSettingsSection 
               settings={settings} 
@@ -403,9 +543,10 @@ function AdminDashboard() {
         </div>
       </div>
 
+      {/* Modal Produit (Ajout / Modification) */}
       {showProductModal && (
-        <div className="custom-modal-backdrop">
-          <div className="custom-modal-card">
+        <div className="custom-modal-backdrop" onClick={() => setShowProductModal(false)}>
+          <div className="custom-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="custom-modal-header">
               <h3>{editingProduct ? 'Modifier le Produit' : 'Ajouter un Nouveau Produit'}</h3>
               <button className="close-modal-btn" onClick={() => setShowProductModal(false)}>
@@ -453,6 +594,28 @@ function AdminDashboard() {
                 </div>
               </div>
 
+              <div className="form-grid-two">
+                <div className="form-row-simple">
+                  <label>Prix Barré (Optionnel)</label>
+                  <input 
+                    type="text" 
+                    value={productForm.prevPrice} 
+                    onChange={(e) => setProductForm({ ...productForm, prevPrice: e.target.value })} 
+                    placeholder="Ex: 350 DH" 
+                  />
+                </div>
+
+                <div className="form-row-simple">
+                  <label>Badge Promo (Optionnel)</label>
+                  <input 
+                    type="text" 
+                    value={productForm.promo} 
+                    onChange={(e) => setProductForm({ ...productForm, promo: e.target.value })} 
+                    placeholder="Ex: -30%" 
+                  />
+                </div>
+              </div>
+
               <div className="form-row-simple">
                 <label>URL de l'image</label>
                 <input 
@@ -461,6 +624,16 @@ function AdminDashboard() {
                   onChange={(e) => setProductForm({ ...productForm, img: e.target.value })} 
                   placeholder="https://..." 
                 />
+                {productForm.img && (
+                  <div className="product-image-preview mt-2">
+                    <img 
+                      src={productForm.img} 
+                      alt="Aperçu" 
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                    <span className="preview-label">Aperçu direct de l'image</span>
+                  </div>
+                )}
               </div>
 
               <div className="form-row-simple">
@@ -469,7 +642,7 @@ function AdminDashboard() {
                   rows="3" 
                   value={productForm.description} 
                   onChange={(e) => setProductForm({ ...productForm, description: e.target.value })} 
-                  placeholder="Description du produit..."
+                  placeholder="Description détaillée du produit..."
                 ></textarea>
               </div>
 
@@ -480,7 +653,7 @@ function AdminDashboard() {
                   checked={productForm.inStock} 
                   onChange={(e) => setProductForm({ ...productForm, inStock: e.target.checked })} 
                 />
-                <label htmlFor="inStockCheck">Produit disponible en stock</label>
+                <label htmlFor="inStockCheck">Produit disponible en stock pour la vente</label>
               </div>
 
               <div className="custom-modal-footer">
@@ -492,6 +665,116 @@ function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Détails Commande Admin */}
+      {selectedOrder && (
+        <div className="custom-modal-backdrop" onClick={() => setSelectedOrder(null)}>
+          <div className="custom-modal-card order-detail-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="custom-modal-header">
+              <div>
+                <h3>Commande #{selectedOrder.id}</h3>
+                <span className="text-muted">
+                  Passée le {new Date(selectedOrder.created_at).toLocaleDateString('fr-FR')} par {selectedOrder.user?.name || selectedOrder.shipping_name}
+                </span>
+              </div>
+              <button className="close-modal-btn" onClick={() => setSelectedOrder(null)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="order-modal-body">
+              {/* Statut et Actions */}
+              <div className="order-status-management">
+                <div>
+                  <span className="label-bold">Statut actuel :</span>
+                  <span className={`status-pill pill-${selectedOrder.status} ms-2`}>
+                    {statusIcons[selectedOrder.status]} {selectedOrder.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <span className="label-bold">Changer :</span>
+                  <select 
+                    value={selectedOrder.status} 
+                    onChange={(e) => handleOrderStatus(selectedOrder.id, e.target.value)}
+                    className="status-select-chip"
+                  >
+                    <option value="pending">En attente</option>
+                    <option value="processing">En cours</option>
+                    <option value="shipped">Expédié</option>
+                    <option value="delivered">Livré</option>
+                    <option value="cancelled">Annulé</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Coordonnées Client */}
+              <div className="order-shipping-summary">
+                <h4><FaTruck className="me-2 text-primary" /> Coordonnées de Livraison</h4>
+                <div className="shipping-grid">
+                  <div>
+                    <p><strong>Destinataire :</strong> {selectedOrder.shipping_name || selectedOrder.user?.name}</p>
+                    <p><FaEnvelope className="me-1 text-muted" /> {selectedOrder.shipping_email || selectedOrder.user?.email}</p>
+                    <p><FaPhoneAlt className="me-1 text-muted" /> {selectedOrder.shipping_phone || '+212 600-000000'}</p>
+                  </div>
+                  <div>
+                    <p><FaMapMarkerAlt className="me-1 text-danger" /> <strong>Adresse :</strong></p>
+                    <p>{selectedOrder.shipping_address || 'Casablanca, Maroc'}</p>
+                    <p><strong>Mode Paiement :</strong> {selectedOrder.payment_method === 'card' ? 'Carte bancaire' : 'Paiement à la livraison'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Articles Commandés */}
+              <h4>Articles Inclus ({selectedOrder.items?.length || 0})</h4>
+              <div className="order-items-table-wrapper">
+                <table className="admin-table-simple">
+                  <thead>
+                    <tr>
+                      <th>Article</th>
+                      <th>Prix Unitaire</th>
+                      <th>Quantité</th>
+                      <th>Sous-total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                      selectedOrder.items.map((item, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            <div className="product-info-cell">
+                              {item.img && <img src={item.img} alt="" className="product-thumb" />}
+                              <span>{item.title}</span>
+                            </div>
+                          </td>
+                          <td>{parseFloat(item.price).toFixed(2)} MAD</td>
+                          <td><strong>x{item.quantity}</strong></td>
+                          <td><strong>{(parseFloat(item.price) * item.quantity).toFixed(2)} MAD</strong></td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center text-muted">Détails des articles non trouvés</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Total */}
+              <div className="order-total-bar">
+                <span>Total Facturé :</span>
+                <span className="total-val">{parseFloat(selectedOrder.total).toFixed(2)} MAD</span>
+              </div>
+            </div>
+
+            <div className="custom-modal-footer">
+              <button className="btn-secondary-simple" onClick={() => setSelectedOrder(null)}>
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -510,14 +793,14 @@ const OverviewSection = ({ stats }) => (
   <div className="overview-container">
     <div className="stats-grid">
       <StatCard icon={<FaUsers />} title="Total Clients" value={stats?.total_users} color="accent" trend="+12%" />
-      <StatCard icon={<FaBoxOpen />} title="Produits" value={stats?.total_products} color="dark" trend="+3" />
-      <StatCard icon={<FaShoppingCart />} title="Commandes" value={stats?.total_orders} color="green" trend="+8%" />
-      <StatCard icon={<FaMoneyBillWave />} title="Revenu Total" value={`${stats?.total_revenue || 0} MAD`} color="gold" trend="+15%" />
+      <StatCard icon={<FaBoxOpen />} title="Produits Catalogue" value={stats?.total_products} color="dark" trend="+3" />
+      <StatCard icon={<FaShoppingCart />} title="Total Commandes" value={stats?.total_orders} color="green" trend="+8%" />
+      <StatCard icon={<FaMoneyBillWave />} title="Revenu Global" value={`${stats?.total_revenue || 0} MAD`} color="gold" trend="+15%" />
     </div>
 
     <div className="charts-grid">
       <div className="chart-card main-chart">
-        <h3>Performance de Revenu (7 jours)</h3>
+        <h3>Performance de Revenu (Derniers Jours)</h3>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={stats?.revenue_chart || []}>
@@ -538,7 +821,7 @@ const OverviewSection = ({ stats }) => (
       </div>
 
       <div className="chart-card pie-chart">
-        <h3>Répartition par Statut</h3>
+        <h3>Répartition des Commandes par Statut</h3>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
@@ -596,37 +879,45 @@ const UsersTable = ({ users, onRoleChange, onDelete }) => (
     <thead>
       <tr>
         <th>Utilisateur</th>
-        <th>Rôle</th>
+        <th>Rôle Système</th>
         <th>Inscrit le</th>
-        <th>Action</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {users.map(u => (
-        <tr key={u.id}>
-          <td>
-            <div className="user-info-cell">
-              <div className="user-img-small">
-                {u.avatar ? <img src={u.avatar} alt="avatar" /> : <FaUser />}
-              </div>
-              <div>
-                <span className="name">{u.name}</span>
-                <span className="email">{u.email}</span>
-              </div>
-            </div>
-          </td>
-          <td>
-            <select value={u.role} onChange={(e) => onRoleChange(u.id, e.target.value)} className="role-chip">
-              <option value="user">Utilisateur</option>
-              <option value="admin">Admin</option>
-            </select>
-          </td>
-          <td>{new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
-          <td>
-            <button className="action-btn delete" onClick={() => onDelete(u.id)} title="Supprimer"><FaTrash /></button>
-          </td>
+      {users.length === 0 ? (
+        <tr>
+          <td colSpan="4" className="text-center text-muted p-4">Aucun utilisateur trouvé</td>
         </tr>
-      ))}
+      ) : (
+        users.map(u => (
+          <tr key={u.id}>
+            <td>
+              <div className="user-info-cell">
+                <div className="user-img-small">
+                  {u.avatar ? <img src={u.avatar} alt="avatar" /> : <FaUser />}
+                </div>
+                <div>
+                  <span className="name">{u.name}</span>
+                  <span className="email">{u.email}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <select value={u.role} onChange={(e) => onRoleChange(u.id, e.target.value)} className="role-chip">
+                <option value="user">Client (user)</option>
+                <option value="admin">Administrateur (admin)</option>
+              </select>
+            </td>
+            <td>{new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
+            <td>
+              <button className="action-btn delete" onClick={() => onDelete(u.id)} title="Supprimer cet utilisateur">
+                <FaTrash />
+              </button>
+            </td>
+          </tr>
+        ))
+      )}
     </tbody>
   </table>
 );
@@ -638,71 +929,105 @@ const ProductsTable = ({ products, onEdit, onDelete }) => (
         <th>Produit</th>
         <th>Catégorie</th>
         <th>Prix</th>
-        <th>Stock</th>
-        <th>Action</th>
+        <th>Disponibilité</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {products.map(p => (
-        <tr key={p.id}>
-          <td>
-            <div className="product-info-cell">
-              <img src={p.img} alt="" className="product-thumb" />
-              <span>{p.title}</span>
-            </div>
-          </td>
-          <td><span className="cat-badge">{p.category}</span></td>
-          <td>{p.new_price ?? p.newPrice ?? 0} MAD</td>
-          <td>
-            <span className={`status-pill ${p.inStock ? 'pill-delivered' : 'pill-cancelled'}`}>
-              {p.inStock ? 'En stock' : 'Épuisé'}
-            </span>
-          </td>
-          <td className="actions-cell">
-            <button className="action-btn edit" onClick={() => onEdit(p)} title="Modifier"><FaEdit /></button>
-            <button className="action-btn delete" onClick={() => onDelete(p.id)} title="Supprimer"><FaTrash /></button>
-          </td>
+      {products.length === 0 ? (
+        <tr>
+          <td colSpan="5" className="text-center text-muted p-4">Aucun produit ne correspond aux filtres</td>
         </tr>
-      ))}
+      ) : (
+        products.map(p => (
+          <tr key={p.id}>
+            <td>
+              <div className="product-info-cell">
+                <img src={p.img} alt="" className="product-thumb" onError={(e) => { e.target.src = '/src/assets/images/p5.png'; }} />
+                <span>{p.title}</span>
+              </div>
+            </td>
+            <td><span className="cat-badge">{p.category}</span></td>
+            <td>
+              <strong>{p.new_price ?? p.newPrice ?? 0} MAD</strong>
+              {p.promo && <span className="badge bg-danger ms-2">{p.promo}</span>}
+            </td>
+            <td>
+              <span className={`status-pill ${p.inStock || p.in_stock ? 'pill-delivered' : 'pill-cancelled'}`}>
+                {p.inStock || p.in_stock ? 'En stock' : 'Épuisé'}
+              </span>
+            </td>
+            <td className="actions-cell">
+              <button className="action-btn edit" onClick={() => onEdit(p)} title="Modifier ce produit"><FaEdit /></button>
+              <button className="action-btn delete" onClick={() => onDelete(p.id)} title="Supprimer ce produit"><FaTrash /></button>
+            </td>
+          </tr>
+        ))
+      )}
     </tbody>
   </table>
 );
 
-const OrdersTable = ({ orders, onStatusChange, statusIcons }) => (
+const OrdersTable = ({ orders, onStatusChange, onViewDetails, statusIcons }) => (
   <table className="admin-table-simple">
     <thead>
       <tr>
-        <th>#ID</th>
+        <th>N° Commande</th>
         <th>Client</th>
-        <th>Total</th>
+        <th>Montant Total</th>
         <th>Statut</th>
         <th>Date</th>
-        <th>Action</th>
+        <th>Changer Statut</th>
+        <th>Détails</th>
       </tr>
     </thead>
     <tbody>
-      {orders.map(o => (
-        <tr key={o.id}>
-          <td className="text-muted">#{o.id}</td>
-          <td>{o.user?.name}</td>
-          <td className="font-bold">{o.total} MAD</td>
-          <td>
-            <span className={`status-pill pill-${o.status}`}>
-              {statusIcons[o.status]} {o.status}
-            </span>
-          </td>
-          <td>{new Date(o.created_at).toLocaleDateString('fr-FR')}</td>
-          <td>
-            <select value={o.status} onChange={(e) => onStatusChange(o.id, e.target.value)} className="status-select-chip">
-              <option value="pending">En attente</option>
-              <option value="processing">En cours</option>
-              <option value="shipped">Expédié</option>
-              <option value="delivered">Livré</option>
-              <option value="cancelled">Annulé</option>
-            </select>
-          </td>
+      {orders.length === 0 ? (
+        <tr>
+          <td colSpan="7" className="text-center text-muted p-4">Aucune commande trouvée</td>
         </tr>
-      ))}
+      ) : (
+        orders.map(o => (
+          <tr key={o.id}>
+            <td className="font-bold">#{o.id}</td>
+            <td>
+              <div>
+                <strong>{o.user?.name || o.shipping_name || 'Client'}</strong>
+                <div className="text-muted small">{o.shipping_email || o.user?.email}</div>
+              </div>
+            </td>
+            <td className="font-bold text-success">{parseFloat(o.total).toFixed(2)} MAD</td>
+            <td>
+              <span className={`status-pill pill-${o.status}`}>
+                {statusIcons[o.status]} {o.status}
+              </span>
+            </td>
+            <td>{new Date(o.created_at).toLocaleDateString('fr-FR')}</td>
+            <td>
+              <select 
+                value={o.status} 
+                onChange={(e) => onStatusChange(o.id, e.target.value)} 
+                className="status-select-chip"
+              >
+                <option value="pending">En attente</option>
+                <option value="processing">En cours</option>
+                <option value="shipped">Expédié</option>
+                <option value="delivered">Livré</option>
+                <option value="cancelled">Annulé</option>
+              </select>
+            </td>
+            <td>
+              <button 
+                className="action-btn view" 
+                onClick={() => onViewDetails(o)} 
+                title="Consulter les articles et la livraison"
+              >
+                <FaEye />
+              </button>
+            </td>
+          </tr>
+        ))
+      )}
     </tbody>
   </table>
 );

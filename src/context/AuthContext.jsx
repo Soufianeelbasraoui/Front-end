@@ -58,6 +58,17 @@ export function AuthProvider({ children }) {
     authAPI.googleLogin();
   };
 
+  const hasRole = (role) => {
+    if (!user || !user.role) return false;
+    return user.role.toLowerCase() === String(role).toLowerCase();
+  };
+
+  const hasAnyRole = (roles = []) => {
+    if (!user || !user.role) return false;
+    const normalizedRoles = roles.map(r => String(r).toLowerCase());
+    return normalizedRoles.includes(user.role.toLowerCase());
+  };
+
   const value = {
     user,
     token,
@@ -66,8 +77,12 @@ export function AuthProvider({ children }) {
     register,
     logout,
     loginWithGoogle,
+    role: user?.role || null,
     isAdmin: user?.role === 'admin',
+    isClient: user?.role === 'user',
     isAuthenticated: !!user,
+    hasRole,
+    hasAnyRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

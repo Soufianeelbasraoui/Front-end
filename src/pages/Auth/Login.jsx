@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaEnvelope, FaLock, FaSignInAlt, FaGoogle } from "react-icons/fa";
 import { Form, Button, Alert } from "react-bootstrap";
+import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 
 function Login() {
   const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,13 +32,13 @@ function Login() {
     const newErrors = {};
     if (!formData.email) {
       newErrors.email = "L'email est requis";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) {
       newErrors.email = "L'email est invalide";
     }
     if (!formData.password) {
       newErrors.password = "Le mot de passe est requis";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Le mot de passe doit contenir au moins 6 caractères";
+    } else if (formData.password.length < 4) {
+      newErrors.password = "Le mot de passe doit contenir au moins 4 caractères";
     }
     return newErrors;
   };
@@ -51,32 +53,26 @@ function Login() {
 
     try {
       setLoading(true);
-      const data = await login(formData.email, formData.password);
-      if (data.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      const message = error.response?.data?.message || error.response?.data?.errors?.email?.[0] || "Échec de la connexion. Vérifiez vos identifiants.";
-      setLoginError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      const data = await login(formData.email.trim(), formData.password);
+      toast.success("Connexion réussie ! Bienvenue " + (data.user?.name || ""));
+      
+      const userRole = data.user?.role || (formData.email.toLowerCase().includes('admin') ? 'admin' : 'user');
+      const originPath = location.state?.from?.pathname;
 
-  const handleQuickLogin = async (email, password) => {
-    setFormData({ email, password });
-    try {
-      setLoading(true);
-      const data = await login(email, password);
-      if (data.user?.role === 'admin') {
+      if (originPath && originPath !== '/Connecter' && originPath !== '/connecter') {
+        if (originPath.startsWith('/admin') && userRole !== 'admin') {
+          navigate('/dashboard');
+        } else {
+          navigate(originPath);
+        }
+      } else if (userRole === 'admin') {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (error) {
-      setLoginError("Échec de la connexion démo.");
+      const message = error.response?.data?.message || "Email ou mot de passe incorrect.";
+      setLoginError(message);
     } finally {
       setLoading(false);
     }
@@ -86,28 +82,6 @@ function Login() {
     <div className="connecter-container">
       <div className="connecter-card">
         <h2 className="connecter-title">Se connecter</h2>
-
-        <div className="demo-credentials-box">
-          <p className="demo-hint">Connexion rapide :</p>
-          <div className="demo-btn-group">
-            <button
-              type="button"
-              className="demo-badge-btn admin"
-              onClick={() => handleQuickLogin('admin@example.com', 'admin')}
-              disabled={loading}
-            >
-              👑 Admin (Dashboard)
-            </button>
-            <button
-              type="button"
-              className="demo-badge-btn user"
-              onClick={() => handleQuickLogin('user@example.com', 'user')}
-              disabled={loading}
-            >
-              👤 Client (Profil)
-            </button>
-          </div>
-        </div>
 
         {loginError && (
           <Alert variant="danger" className="connecter-alert">
@@ -128,6 +102,7 @@ function Login() {
                 placeholder="Adresse email"
                 isInvalid={!!errors.email}
                 aria-label="Adresse email"
+                autoComplete="email"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.email}
@@ -148,6 +123,7 @@ function Login() {
                 placeholder="Mot de passe"
                 isInvalid={!!errors.password}
                 aria-label="Mot de passe"
+                autoComplete="current-password"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.password}
@@ -163,34 +139,37 @@ function Login() {
 
           <Button
             type="submit"
-            variant="primary"
-            className="connecter-btn"
-            aria-label="Se connecter"
+            className="connecter-button w-100"
             disabled={loading}
           >
-            <FaSignInAlt className="me-2" />
+            {loading ? (
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            ) : (
+              <FaSignInAlt className="me-2" />
+            )}
             {loading ? "Connexion..." : "Se connecter"}
-          </Button>
-
-          <div className="divider">
-            <span>ou</span>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline-dark"
-            className="google-btn"
-            onClick={loginWithGoogle}
-          >
-            <FaGoogle className="me-2" style={{ color: '#ea4335' }} />
-            Se connecter avec Google
           </Button>
         </Form>
 
+        <div className="connecter-separator">
+          <span>OU</span>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline-secondary"
+          className="google-button w-100 mb-4"
+          onClick={loginWithGoogle}
+          disabled={loading}
+        >
+          <FaGoogle className="me-2 text-danger" />
+          Continuer avec Google
+        </Button>
+
         <div className="connecter-footer">
           <p>
-            Pas de compte ?{" "}
-            <Link to="/S'inscrire" className="signup-link">
+            Vous n'avez pas de compte ?{" "}
+            <Link to="/sinscrire" className="signup-link">
               S'inscrire
             </Link>
           </p>

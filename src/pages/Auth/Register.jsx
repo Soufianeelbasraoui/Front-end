@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock, FaUserPlus, FaGoogle } from "react-icons/fa";
 import { Form, Button, Alert } from "react-bootstrap";
+import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 import "./Register.css";
 import "../Auth/Login.css";
@@ -31,20 +32,20 @@ function Register() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.fullName) {
+    if (!formData.fullName || !formData.fullName.trim()) {
       newErrors.fullName = "Le nom complet est requis";
-    } else if (formData.fullName.length < 2) {
+    } else if (formData.fullName.trim().length < 2) {
       newErrors.fullName = "Le nom doit contenir au moins 2 caractères";
     }
-    if (!formData.email) {
+    if (!formData.email || !formData.email.trim()) {
       newErrors.email = "L'email est requis";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) {
       newErrors.email = "L'email est invalide";
     }
     if (!formData.password) {
       newErrors.password = "Le mot de passe est requis";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Le mot de passe doit contenir au moins 6 caractères";
+    } else if (formData.password.length < 4) {
+      newErrors.password = "Le mot de passe doit contenir au moins 4 caractères";
     }
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "La confirmation du mot de passe est requise";
@@ -64,14 +65,21 @@ function Register() {
 
     try {
       setLoading(true);
-      const res = await register(formData.fullName, formData.email, formData.password);
+      const res = await register(
+        formData.fullName.trim(),
+        formData.email.trim().toLowerCase(),
+        formData.password
+      );
+      toast.success("Compte créé avec succès ! Bienvenue " + (res?.user?.name || ""));
       if (res?.user?.role === 'admin' || formData.email.toLowerCase().includes('admin')) {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (error) {
-      const message = error.response?.data?.message || "Échec de l'inscription. Veuillez réessayer.";
+      const message = error.response?.data?.message || 
+        error.response?.data?.errors?.email?.[0] || 
+        "Échec de l'inscription. Cet email est peut-être déjà utilisé.";
       setSignupError(message);
     } finally {
       setLoading(false);
@@ -101,6 +109,7 @@ function Register() {
                 placeholder="Nom complet"
                 isInvalid={!!errors.fullName}
                 aria-label="Nom complet"
+                autoComplete="name"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.fullName}
@@ -121,6 +130,7 @@ function Register() {
                 placeholder="Adresse email"
                 isInvalid={!!errors.email}
                 aria-label="Adresse email"
+                autoComplete="email"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.email}
@@ -141,6 +151,7 @@ function Register() {
                 placeholder="Mot de passe"
                 isInvalid={!!errors.password}
                 aria-label="Mot de passe"
+                autoComplete="new-password"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.password}
@@ -161,6 +172,7 @@ function Register() {
                 placeholder="Confirmer le mot de passe"
                 isInvalid={!!errors.confirmPassword}
                 aria-label="Confirmer le mot de passe"
+                autoComplete="new-password"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.confirmPassword}
@@ -170,34 +182,37 @@ function Register() {
 
           <Button
             type="submit"
-            variant="primary"
-            className="sinscrire-btn"
-            aria-label="S'inscrire"
+            className="sinscrire-button w-100"
             disabled={loading}
           >
-            <FaUserPlus className="me-2" />
-            {loading ? "Inscription..." : "S'inscrire"}
-          </Button>
-
-          <div className="divider">
-            <span>ou</span>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline-dark"
-            className="google-btn"
-            onClick={loginWithGoogle}
-          >
-            <FaGoogle className="me-2" style={{ color: '#ea4335' }} />
-            S'inscrire avec Google
+            {loading ? (
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            ) : (
+              <FaUserPlus className="me-2" />
+            )}
+            {loading ? "Création du compte..." : "Créer un compte"}
           </Button>
         </Form>
 
+        <div className="connecter-separator">
+          <span>OU</span>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline-secondary"
+          className="google-button w-100 mb-4"
+          onClick={loginWithGoogle}
+          disabled={loading}
+        >
+          <FaGoogle className="me-2 text-danger" />
+          S'inscrire avec Google
+        </Button>
+
         <div className="sinscrire-footer">
           <p>
-            Déjà un compte ?{" "}
-            <Link to="/Connecter" className="login-link">
+            Vous avez déjà un compte ?{" "}
+            <Link to="/connecter" className="login-link">
               Se connecter
             </Link>
           </p>

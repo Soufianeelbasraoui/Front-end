@@ -1,22 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { CiDeliveryTruck } from "react-icons/ci";
 import { FaShoppingCart, FaStar } from "react-icons/fa";
-import products from "../../data/products";
-import Featuredproducts from "../../data/featuredProducts";
-import Featuredproduit from "../../data/recommendedProducts";
+import { productAPI } from "../../services/api";
 import formatPrice from "../../utils/formatPrice";
 import "./ProductDetail.css";
 
 function ProductDetail({ handelAddtoCart }) {
   const { id } = useParams();
-
-  // On regroupe tous les produits pour la recherche par ID
-  const allProducts = [...products, ...Featuredproducts, ...Featuredproduit]; 
-  const product = allProducts?.find((prod) => prod?.id?.toString() === id);
-
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await productAPI.getById(id);
+        setProduct(res.data);
+      } catch (err) {
+        console.error("Erreur chargement produit ID", id, err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container mt-5 text-center py-5">
+        <div className="spinner-border text-primary" role="status"></div>
+        <p className="mt-2 text-muted">Chargement du produit...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -26,6 +47,12 @@ function ProductDetail({ handelAddtoCart }) {
       </div>
     );
   }
+
+  const numericPrice = typeof product.new_price === 'number' 
+    ? product.new_price 
+    : typeof product.newPrice === 'number'
+      ? product.newPrice
+      : 150;
 
   return (
     <div className="container mt-5 product-detail-container">
@@ -53,14 +80,16 @@ function ProductDetail({ handelAddtoCart }) {
             <p className="category-label"><strong>Catégorie:</strong> <span className="text-muted">{product.category}</span></p>
 
             <div className="price-box my-3">
-              <span className="current-price text-danger fs-3 fw-bold">{formatPrice(product.newPrice)}</span>
-              {product.prevPrice && (
-                <del className="text-muted ms-3">{formatPrice(product.prevPrice)}</del>
+              <span className="current-price text-danger fs-3 fw-bold">{formatPrice(numericPrice)}</span>
+              {product.prev_price && (
+                <del className="text-muted ms-3">{formatPrice(product.prev_price)}</del>
               )}
             </div>
             
-            <p><strong>Couleur:</strong> {Array.isArray(product.color) ? product.color.join(", ") : product.color}</p>
-          
+            {product.description && (
+              <p className="product-description text-muted my-3">{product.description}</p>
+            )}
+
             <div className="mb-3">
               <label className="d-block mb-1"><strong>Quantité:</strong></label>
               <select 
@@ -78,25 +107,8 @@ function ProductDetail({ handelAddtoCart }) {
             <div className="stars-rating mb-3">
               {[...Array(4)].map((_, i) => <FaStar key={i} className="text-warning" />)}
               <FaStar className="text-secondary" /> 
-              <span className="ms-2 text-muted">({product.reviews})</span>
+              <span className="ms-2 text-muted">({product.reviews || '1k'})</span>
             </div>
-
-            {product.size && (
-              <div className="mb-4">
-                <strong>Taille:</strong>
-                <div className="d-flex flex-wrap mt-2">
-                  {product.size.map((size, index) => (
-                    <button
-                      key={index}
-                      className={`btn me-2 mb-2 ${selectedSize === size ? 'btn-dark' : 'btn-outline-dark'}`}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="button-group mt-4">
               <button 
@@ -105,8 +117,6 @@ function ProductDetail({ handelAddtoCart }) {
               >
                 <FaShoppingCart className="me-2" /> AJOUTER AU PANIER
               </button> 
-
-            
             </div>
 
             <div className="shipping-info mt-4 p-3 bg-light rounded shadow-sm">

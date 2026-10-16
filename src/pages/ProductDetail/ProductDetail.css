@@ -91,6 +91,7 @@
   
   .product-title {
     font-size: 1.5rem;
+    word-break: break-word;
   }
 }
 
@@ -100,10 +101,28 @@
   }
 
   .imgcard1 {
-    max-height: 280px;
+    max-height: 260px;
   }
 
   .product-title {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+  }
+
+  .shipping-info {
+    padding: 0.8rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .imgcard1 {
+    max-height: 200px;
+  }
+
+  .product-title {
+    font-size: 1.15rem;
+  }
+
+  .price-box .current-price {
+    font-size: 1.3rem !important;
   }
 }

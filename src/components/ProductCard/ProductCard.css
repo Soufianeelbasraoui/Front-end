@@ -8,8 +8,8 @@
 }
 
 .image {
-  width: 100%;
-  margin: 20px;
+  max-width: 100%;
+  height: auto;
   border-radius: 5px;
 }
 
@@ -56,7 +56,8 @@ p {
   gap: 12px;
   border: 1px solid var(--border-light);
   border-radius: 5px;
-  width: 280px;
+  max-width: 280px;
+  width: 100%;
   padding: 15px;
   background-color: var(--bg-white);
   transition: var(--transition-fast);

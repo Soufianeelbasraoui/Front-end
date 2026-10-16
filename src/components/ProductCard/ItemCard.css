@@ -141,6 +141,12 @@
   font-size: 1.1rem;
 }
 
+@media (max-width: 992px) and (min-width: 577px) {
+  .product-image-container {
+    height: 165px;
+  }
+}
+
 @media (max-width: 576px) {
   .product-card {
     padding: 9px;
@@ -201,5 +207,23 @@
 
   .product-image-container {
     height: 120px;
+  }
+}
+
+@media (max-width: 340px) {
+  .product-card {
+    padding: 7px;
+  }
+
+  .product-image-container {
+    height: 110px;
+  }
+
+  .product-title {
+    font-size: 12px;
+  }
+
+  .current-price {
+    font-size: 13px;
   }
 }

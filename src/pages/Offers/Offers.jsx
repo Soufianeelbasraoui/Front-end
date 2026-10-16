@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Featuredproducts from "../../data/featuredProducts";
+import React, { useState, useEffect } from "react";
+import { productAPI } from "../../services/api";
 import ItemCard from "../../components/ProductCard/ItemCard";
 import bannerImg from "../../assets/images/imgslider4.webp";
 import "./Offers.css";
@@ -13,11 +13,26 @@ const OFFER_CATEGORIES = [
 ];
 
 function Offers({ handelAddtoCart }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
-  const promoProducts = Featuredproducts.filter((product) => product.promo);
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        setLoading(true);
+        const res = await productAPI.getOffers();
+        setProducts(res.data || []);
+      } catch (err) {
+        console.error("Erreur de récupération des offres depuis le backend :", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOffers();
+  }, []);
 
-  const filteredProducts = promoProducts.filter((product) => 
+  const filteredProducts = products.filter((product) => 
     filter === "all" ? true : product.category === filter
   );
 
@@ -29,7 +44,7 @@ function Offers({ handelAddtoCart }) {
           <div className="offers-banner-overlay"></div>
           <div className="offers-banner-content">
             <span className="badge bg-danger mb-2">VENTES FLASH DU MOMENT</span>
-            <h1 className="banner-title">Jusqu'à -50% sur vos articles préférés</h1>
+            <h1 className="banner-title">Jusqu'à -67% sur vos articles préférés</h1>
             <p className="banner-desc">Profitez de réductions exclusives et d'offres limitées sur toute notre sélection.</p>
           </div>
         </div>
@@ -48,8 +63,8 @@ function Offers({ handelAddtoCart }) {
           <div className="offers-filter-buttons mt-3">
             {OFFER_CATEGORIES.map((cat) => {
               const count = cat.id === "all"
-                ? promoProducts.length
-                : promoProducts.filter((p) => p.category === cat.id).length;
+                ? products.length
+                : products.filter((p) => p.category === cat.id).length;
               const isActive = filter === cat.id;
 
               return (
@@ -69,21 +84,28 @@ function Offers({ handelAddtoCart }) {
           </div>
         </div>
 
-        <div className="product-grid mt-4">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ItemCard 
-                key={product.id} 
-                product={product} 
-                handelAddtoCart={handelAddtoCart} 
-              />
-            ))
-          ) : (
-            <div className="no-offers-box text-center py-5">
-              <p className="text-muted mb-0">Aucun produit en promotion pour cette catégorie actuellement.</p>
-            </div>
-          )}
-        </div>
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-danger" role="status"></div>
+            <p className="mt-2 text-muted">Chargement des offres spéciales depuis le backend...</p>
+          </div>
+        ) : (
+          <div className="product-grid mt-4">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ItemCard 
+                  key={product.id} 
+                  product={product} 
+                  handelAddtoCart={handelAddtoCart} 
+                />
+              ))
+            ) : (
+              <div className="no-offers-box text-center py-5">
+                <p className="text-muted mb-0">Aucun produit en promotion pour cette catégorie actuellement.</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

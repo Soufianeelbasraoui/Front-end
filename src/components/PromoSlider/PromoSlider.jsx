@@ -57,9 +57,8 @@ const PromoSlider = () => {
                   <div className="w-100 w-md-50 h-100 d-flex align-items-center justify-content-center">
                     <img
                       src={lp19}
-                      className="d-block w-100 img-card"
+                      className="d-block w-100 img-card promo-hero-img"
                       alt="Casque VR"
-                      style={{ height: "360px", objectFit: "contain" }}
                     />
                   </div>
                 </div>
@@ -84,9 +83,8 @@ const PromoSlider = () => {
                   <div className="w-100 w-md-50 h-100 d-flex align-items-center justify-content-center">
                     <img
                       src={imgslider}
-                      className="d-block w-100 img-card"
+                      className="d-block w-100 img-card promo-hero-img"
                       alt="PC Portable"
-                      style={{ height: "360px", objectFit: "contain" }}
                     />
                   </div>
                 </div>
@@ -111,9 +109,8 @@ const PromoSlider = () => {
                   <div className="w-100 w-md-50 h-100 d-flex align-items-center justify-content-center">
                     <img
                       src={promoImg2}
-                      className="d-block w-100 img-card"
+                      className="d-block w-100 img-card promo-hero-img"
                       alt="Accessoires"
-                      style={{ height: "360px", objectFit: "contain" }}
                     />
                   </div>
                 </div>
@@ -137,8 +134,7 @@ const PromoSlider = () => {
               <img
                 src={cartable}
                 alt="Sac à Dos Professionnel"
-                className="img-card me-3 flex-shrink-0"
-                style={{ width: "120px", height: "130px", objectFit: "contain" }}
+                className="img-card promo-side-img me-3 flex-shrink-0"
               />
               <div className="promo-side-info">
                 <span className="badge bg-danger mb-1">-20% DE REMISE</span>
@@ -153,8 +149,7 @@ const PromoSlider = () => {
               <img
                 src={iphone}
                 alt="Smartphone Premium"
-                className="img-card me-3 flex-shrink-0"
-                style={{ width: "120px", height: "130px", objectFit: "contain" }}
+                className="img-card promo-side-img me-3 flex-shrink-0"
               />
               <div className="promo-side-info">
                 <span className="badge bg-danger mb-1">PROMO LIMITÉE</span>

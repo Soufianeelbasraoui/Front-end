@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Featuredproducts from "../../data/featuredProducts";
+import React, { useState, useEffect } from "react";
+import { productAPI } from "../../services/api";
 import ItemCard from "../../components/ProductCard/ItemCard";
 import nowcollection from "../../assets/images/Ncollection.jpg";
 import "./Products.css";
@@ -10,20 +10,32 @@ const CATEGORIES = [
   { id: "Vêtements", name: "Vêtements" },
   { id: "Meubles", name: "Mobilier" },
   { id: "Sacs et Bagages", name: "Sacs & Bagages" },
+  { id: "Chaussures", name: "Chaussures" },
 ];
 
 function Products({ handelAddtoCart }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [produitfilter, setProduitFilter] = useState(Featuredproducts);
 
-  const handleCategorySelect = (categoryId) => {
-    setSelectedCategory(categoryId);
-    if (categoryId === "all") {
-      setProduitFilter(Featuredproducts);
-    } else {
-      setProduitFilter(Featuredproducts.filter((ele) => ele.category === categoryId));
-    }
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const res = await productAPI.getAll();
+        setProducts(res.data || []);
+      } catch (err) {
+        console.error("Erreur de récupération backend:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const produitfilter = selectedCategory === "all"
+    ? products
+    : products.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="products-page-wrapper">
@@ -38,7 +50,7 @@ function Products({ handelAddtoCart }) {
           <div className="products-banner-content">
             <span className="badge bg-primary mb-2">CATALOGUE ClickStore</span>
             <h1 className="banner-title">Tous nos Produits</h1>
-            <p className="banner-desc">Explorez notre sélection complète d'articles soigneusement choisis pour vous.</p>
+            <p className="banner-desc">Explorez notre sélection complète d'articles enregistrés dans le backend.</p>
           </div>
         </div>
 
@@ -55,9 +67,6 @@ function Products({ handelAddtoCart }) {
 
           <div className="category-filter-buttons mt-3">
             {CATEGORIES.map((cat) => {
-              const count = cat.id === "all" 
-                ? Featuredproducts.length 
-                : Featuredproducts.filter((p) => p.category === cat.id).length;
               const isActive = selectedCategory === cat.id;
 
               return (
@@ -65,27 +74,31 @@ function Products({ handelAddtoCart }) {
                   key={cat.id}
                   type="button"
                   className={`category-filter-btn ${isActive ? "active" : ""}`}
-                  onClick={() => handleCategorySelect(cat.id)}
+                  onClick={() => setSelectedCategory(cat.id)}
                 >
                   <span className="category-filter-name">{cat.name}</span>
-                  <span className="category-filter-count">
-                    {count} {count > 1 ? "articles" : "article"}
-                  </span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        <div className="product-grid mt-4">
-          {produitfilter.map((product) => (
-            <ItemCard 
-              key={product.id} 
-              product={product} 
-              handelAddtoCart={handelAddtoCart} 
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status"></div>
+            <p className="mt-2 text-muted">Chargement des produits depuis le backend...</p>
+          </div>
+        ) : (
+          <div className="product-grid mt-4">
+            {produitfilter.map((product) => (
+              <ItemCard 
+                key={product.id} 
+                product={product} 
+                handelAddtoCart={handelAddtoCart} 
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

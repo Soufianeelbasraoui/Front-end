@@ -1,11 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Featuredproducts from "../../data/featuredProducts";
+import { productAPI } from "../../services/api";
 import ItemCard from "../../components/ProductCard/ItemCard";
 import "./Electronics.css";
 
 function Electronics({ handelAddtoCart }) {
-  const ElectroniquesFilter = Featuredproducts.filter((ele) => ele.category === "Électroniques");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        setLoading(true);
+        const res = await productAPI.getAll({ category: "Électroniques" });
+        setProducts(res.data || []);
+      } catch (err) {
+        console.error("Erreur de chargement des électroniques:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategory();
+  }, []);
 
   return (
     <div className="container mt-4">
@@ -17,15 +33,22 @@ function Electronics({ handelAddtoCart }) {
         </ol>
       </nav>
       
-      <div className="product-grid mt-4">
-        {ElectroniquesFilter.map((product) => (
-          <ItemCard 
-            key={product.id} 
-            product={product} 
-            handelAddtoCart={handelAddtoCart} 
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status"></div>
+          <p className="mt-2 text-muted">Chargement des électroniques depuis le backend...</p>
+        </div>
+      ) : (
+        <div className="product-grid mt-4">
+          {products.map((product) => (
+            <ItemCard 
+              key={product.id} 
+              product={product} 
+              handelAddtoCart={handelAddtoCart} 
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

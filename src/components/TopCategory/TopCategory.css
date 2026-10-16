@@ -143,21 +143,34 @@
   transform: scale(1.05);
 }
 
+@media (max-width: 1100px) {
+  .trio-promo-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
 @media (max-width: 992px) {
   .top-categories-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 12px;
   }
+}
 
+@media (max-width: 768px) {
   .trio-promo-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
   }
 }
 
 @media (max-width: 576px) {
   .section-main-title {
     font-size: 1.25rem;
+  }
+
+  .section-main-subtitle {
+    font-size: 0.82rem;
   }
 
   .top-categories-grid {
@@ -170,7 +183,7 @@
   }
 
   .category-img-wrap {
-    height: 95px;
+    height: 90px;
     margin-bottom: 8px;
   }
 
@@ -183,7 +196,7 @@
   }
 
   .trio-promo-card {
-    padding: 14px;
+    padding: 12px;
     gap: 10px;
   }
 
@@ -192,18 +205,28 @@
   }
 
   .trio-card-img {
-    width: 80px;
-    height: 80px;
+    width: 75px;
+    height: 75px;
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 350px) {
   .top-categories-grid {
     grid-template-columns: 1fr;
     gap: 8px;
   }
 
   .category-img-wrap {
-    height: 110px;
+    height: 100px;
+  }
+
+  .trio-promo-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .trio-card-img {
+    width: 90px;
+    height: 90px;
   }
 }

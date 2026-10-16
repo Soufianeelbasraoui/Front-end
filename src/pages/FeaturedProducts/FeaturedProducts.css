@@ -64,13 +64,36 @@
   transform: scale(1.05);
 }
 
+@media (max-width: 768px) {
+  .featured-duo-card {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .duo-title {
+    font-size: 1.1rem;
+  }
+
+  .duo-card-img {
+    width: 120px;
+    height: 120px;
+  }
+}
+
 @media (max-width: 576px) {
   .featured-duo-card {
     flex-direction: column;
     text-align: center;
+    padding: 16px;
   }
 
   .duo-card-img {
     margin-top: 12px;
+    width: 130px;
+    height: 130px;
+  }
+
+  .featured-duo-card .btn {
+    width: 100%;
   }
 }

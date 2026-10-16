@@ -135,9 +135,30 @@
 @media (max-width: 768px) {
   .contact-container {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem auto;
   }
   
   .contact-info {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .contact-form-container {
+    padding: 1.2rem;
+  }
+
+  .info-card {
+    padding: 1.2rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+
+  .form-header h2 {
+    font-size: 1.2rem;
   }
 }

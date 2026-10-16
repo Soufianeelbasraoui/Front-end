@@ -95,3 +95,21 @@
   transform: translateY(-2px);
   border-color: var(--accent-orange);
 }
+
+@media (max-width: 576px) {
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  .experience-badge {
+    bottom: 5px;
+    right: 5px;
+    width: 90px;
+    height: 90px;
+    padding: 0.5rem;
+  }
+
+  .experience-badge span {
+    font-size: 1.2rem;
+  }
+}

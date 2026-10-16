@@ -27,7 +27,7 @@
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
 }
 
@@ -96,4 +96,19 @@
   content: "✓";
   color: var(--success-color);
   font-weight: bold;
+}
+
+@media (max-width: 576px) {
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .service-card {
+    padding: 1.2rem;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
